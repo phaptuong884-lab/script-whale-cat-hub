@@ -10970,5 +10970,16 @@ ParticleEmitter.Speed = NumberRange.new(5, 10);
 ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
 local rotateTween = TweenService:Create(ImageButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation=360});
 ImageButton.MouseButton1Down:Connect(function()
-	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);
+	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);#Persistent
+$F1::  ; Nhấn F1 để bật/tắt auto đánh
+Toggle := !Toggle
+If Toggle
+    SetTimer, AutoAttack, 200  ; Đánh mỗi 200 mili-giây
+Else
+    SetTimer, AutoAttack, Off
+Return
+
+AutoAttack:
+Send, {Ctrl}  ; Thay bằng phím tấn công của bạn
+Return
 end);
