@@ -10969,6 +10969,57 @@ ParticleEmitter.Rate = 0;
 ParticleEmitter.Speed = NumberRange.new(5, 10);
 ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
 local rotateTween = TweenService:Create(ImageButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation=360});
+PosM = CFrame.new(4697.5918, 1100.65137, 946.401978)
+        end
+    end
+end
+
+-- ==========================================
+-- PHẦN CODE TỰ ĐỘNG LẮP VÀO ĐỂ BẮT ĐẦU FARM
+-- ==========================================
+
+_G.AutoFarm = true         -- Bật/Tắt Auto Farm
+_G.SelectWeapon = "Melee"  -- Vũ khí dùng để farm: "Melee", "Sword", "Blox Fruit", "Gun"
+_B = true                  -- Bật gom quái lại gần (Bring Enemy)
+
+-- Vòng lặp chính điều khiển nhân vật nhận Q và đánh quái
+task.spawn(function()
+    while task.wait(0.1) do
+        if _G.AutoFarm then
+            pcall(function()
+                -- 1. Cập nhật quái theo Level hiện tại
+                QuestCheck()
+                
+                -- 2. Kiểm tra nếu chưa nhận Quest thì bay tới NPC nhận Quest
+                local questGui = plr.PlayerGui.Main:FindFirstChild("Quest")
+                if not questGui or not questGui.Visible then
+                    _tp(PosQ)
+                    if (Root.Position - PosQ.Position).Magnitude <= 15 then
+                        replicated.Remotes.CommF_:InvokeServer("StartQuest", Qname, Qdata)
+                    end
+                else
+                    -- 3. Khi đã có Quest, tìm quái và đánh
+                    local enemy = GetConnectionEnemies(NameMon)
+                    if enemy and enemy:FindFirstChild("HumanoidRootPart") then
+                        -- Tấn công quái (Gom quái + Mở Noclip + Bay trên đầu quái)
+                        Attack.Kill(enemy, true)
+                        
+                        -- Tự động đánh thường (Click / Tap)
+                        vim2:Button1Down(Vector2.new(0, 0))
+                        
+                        -- Tự động tung chiêu (nếu dùng Melee/Fruit/Sword)
+                        Useskills(_G.SelectWeapon, "Z")
+                        Useskills(_G.SelectWeapon, "X")
+                        Useskills(_G.SelectWeapon, "C")
+                    else
+                        -- Nếu chưa thấy quái xuất hiện, bay tới vị trí spawn của quái
+                        _tp(PosM)
+                    end
+                end
+            end)
+        end
+    end
+end)
 ImageButton.MouseButton1Down:Connect(function()
 	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);#Persistent
 end
