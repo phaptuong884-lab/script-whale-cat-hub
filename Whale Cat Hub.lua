@@ -253,7 +253,7 @@ gay = (function()
         Water:Destroy()
     end        
 end)()
-local Attack = {}
+local Attack = {True}
 Attack.__index = Attack
 Attack.Alive = function(model)
     if not model then
