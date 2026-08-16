@@ -11035,6 +11035,3 @@ task.spawn(function()
         end
     end
 end)
-ImageButton.MouseButton1Down:Connect(function()
-	game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);#Persistent
-end)
