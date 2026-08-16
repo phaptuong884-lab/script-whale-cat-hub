@@ -1950,8 +1950,8 @@ end
 
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Window = Fluent:CreateWindow({
-    Title = "none",
-    SubTitle = "",
+    Title = "Whale Cat Hub",
+    SubTitle = "By Arey and Off",
     TabWidth = 155,
     Size = UDim2.fromOffset(485, 370),
     Acrylic = false,
