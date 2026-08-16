@@ -1,4 +1,5 @@
 do
+	print ("script chạy rồi")
     ply = game.Players
     plr = ply.LocalPlayer
     Root = plr.Character.HumanoidRootPart
@@ -10970,50 +10971,64 @@ ParticleEmitter.Speed = NumberRange.new(5, 10);
 ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
 local rotateTween = TweenService:Create(ImageButton, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Rotation=360});
 PosM = CFrame.new(4697.5918, 1100.65137, 946.401978)
-        end
-    end
-end
-
 -- ==========================================
--- PHẦN CODE TỰ ĐỘNG LẮP VÀO ĐỂ BẮT ĐẦU FARM
+-- ĐOẠN CODE HOÀN CHỈNH (ĐÃ FIX LỖI KẾT NỐI)
 -- ==========================================
 
-_G.AutoFarm = true         -- Bật/Tắt Auto Farm
-_G.SelectWeapon = "Melee"  -- Vũ khí dùng để farm: "Melee", "Sword", "Blox Fruit", "Gun"
-_B = true                  -- Bật gom quái lại gần (Bring Enemy)
+_G.AutoFarm = true         -- Bật Auto Farm
+_G.SelectWeapon = "Melee"  -- Vũ khí: "Melee", "Sword", "Blox Fruit", "Gun"
+_B = true                  -- Gom quái
 
--- Vòng lặp chính điều khiển nhân vật nhận Q và đánh quái
+local plr = game.Players.LocalPlayer
+local replicated = game:GetService("ReplicatedStorage")
+local vim2 = game:GetService("VirtualInputManager")
+
+-- Vòng lặp chính tự động chạy
 task.spawn(function()
-    while task.wait(0.1) do
+    while task.wait(0.5) do
         if _G.AutoFarm then
             pcall(function()
-                -- 1. Cập nhật quái theo Level hiện tại
-                QuestCheck()
+                -- Tự gọi hàm check Quest nếu có
+                if typeof(QuestCheck) == "function" then
+                    QuestCheck()
+                end
                 
-                -- 2. Kiểm tra nếu chưa nhận Quest thì bay tới NPC nhận Quest
-                local questGui = plr.PlayerGui.Main:FindFirstChild("Quest")
+                local Root = plr.Character and plr.Character:FindFirstChild("HumanoidRootPart")
+                if not Root then return end
+
+                local questGui = plr.PlayerGui:FindFirstChild("Main") and plr.PlayerGui.Main:FindFirstChild("Quest")
+                
+                -- Nếu chưa có Quest
                 if not questGui or not questGui.Visible then
-                    _tp(PosQ)
-                    if (Root.Position - PosQ.Position).Magnitude <= 15 then
-                        replicated.Remotes.CommF_:InvokeServer("StartQuest", Qname, Qdata)
+                    if PosQ then 
+                        _tp(PosQ)
+                        if (Root.Position - PosQ.Position).Magnitude <= 15 then
+                            replicated.Remotes.CommF_:InvokeServer("StartQuest", Qname, Qdata)
+                        end
                     end
                 else
-                    -- 3. Khi đã có Quest, tìm quái và đánh
-                    local enemy = GetConnectionEnemies(NameMon)
+                    -- Nếu đã nhận Quest -> Tìm quái đánh
+                    local enemy = nil
+                    if typeof(GetConnectionEnemies) == "function" and NameMon then
+                        enemy = GetConnectionEnemies(NameMon)
+                    end
+
                     if enemy and enemy:FindFirstChild("HumanoidRootPart") then
-                        -- Tấn công quái (Gom quái + Mở Noclip + Bay trên đầu quái)
-                        Attack.Kill(enemy, true)
+                        if Attack and typeof(Attack.Kill) == "function" then
+                            Attack.Kill(enemy, true)
+                        end
                         
-                        -- Tự động đánh thường (Click / Tap)
-                        vim2:Button1Down(Vector2.new(0, 0))
+                        -- Tự click đánh
+                        vim2:SendMouseButtonEvent(0, 0, 0, true, game, 0)
                         
-                        -- Tự động tung chiêu (nếu dùng Melee/Fruit/Sword)
-                        Useskills(_G.SelectWeapon, "Z")
-                        Useskills(_G.SelectWeapon, "X")
-                        Useskills(_G.SelectWeapon, "C")
+                        -- Tự xài skill
+                        if typeof(Useskills) == "function" then
+                            Useskills(_G.SelectWeapon, "Z")
+                            Useskills(_G.SelectWeapon, "X")
+                            Useskills(_G.SelectWeapon, "C")
+                        end
                     else
-                        -- Nếu chưa thấy quái xuất hiện, bay tới vị trí spawn của quái
-                        _tp(PosM)
+                        if PosM then _tp(PosM) end
                     end
                 end
             end)
